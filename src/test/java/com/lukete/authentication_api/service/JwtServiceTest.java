@@ -53,4 +53,18 @@ class JwtServiceTest {
         assertThat(claims.get("role", String.class)).isEqualTo("USER");
         assertThat(claims.getExpiration()).isAfter(claims.getIssuedAt());
     }
+
+    @Test
+    void shouldExtractUserIdFromToken() {
+        UUID userId = UUID.randomUUID();
+
+        User user = new User();
+        user.setId(userId);
+        user.setEmail("test@example.com");
+        user.setRole(Role.USER);
+
+        String token = jwtService.generateToken(user);
+        UUID extractedId = jwtService.extractUserId(token);
+        assertThat(userId).isEqualTo(extractedId);
+    }
 }

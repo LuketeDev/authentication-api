@@ -24,6 +24,7 @@ import com.lukete.authentication_api.dto.RegisterUserRequest;
 import com.lukete.authentication_api.exception.EmailAlreadyRegisteredException;
 import com.lukete.authentication_api.exception.InvalidCredentialsException;
 import com.lukete.authentication_api.exception.UserNotFoundException;
+import com.lukete.authentication_api.mapper.UserMapper;
 import com.lukete.authentication_api.repository.UserRepository;
 
 class UserServiceTest {
@@ -36,12 +37,15 @@ class UserServiceTest {
         @Mock
         private JwtService jwtService;
 
+        @Mock
+        private UserMapper userMapper;
+
         private UserService userService;
 
         @BeforeEach
         void setUp() {
                 MockitoAnnotations.openMocks(this);
-                userService = new UserService(userRepository, passwordEncoder, jwtService);
+                userService = new UserService(userRepository, passwordEncoder, jwtService, userMapper);
         }
 
         @Test

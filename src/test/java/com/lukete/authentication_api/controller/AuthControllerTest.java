@@ -31,160 +31,164 @@ import com.lukete.authentication_api.dto.UserResponse;
 import com.lukete.authentication_api.exception.EmailAlreadyRegisteredException;
 import com.lukete.authentication_api.exception.InvalidCredentialsException;
 import com.lukete.authentication_api.mapper.UserMapper;
+import com.lukete.authentication_api.service.JwtService;
 import com.lukete.authentication_api.service.UserService;
 
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
 
-        @Autowired
-        private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-        @MockitoBean
-        private UserService userService;
+    @MockitoBean
+    private UserService userService;
 
-        @MockitoBean
-        private UserMapper userMapper;
+    @MockitoBean
+    private UserMapper userMapper;
 
-        @Test
-        void shouldRegisterUser() throws Exception {
-                UUID id = UUID.randomUUID();
-                Instant now = Instant.now();
+    @MockitoBean
+    private JwtService jwtService;
 
-                RegisterUserRequest request = new RegisterUserRequest("test@example.com", "password123");
+    @Test
+    void shouldRegisterUser() throws Exception {
+        UUID id = UUID.randomUUID();
+        Instant now = Instant.now();
 
-                User user = new User();
-                user.setId(id);
-                user.setEmail(request.email());
-                user.setRole(Role.USER);
+        RegisterUserRequest request = new RegisterUserRequest("test@example.com", "password123");
 
-                UserResponse response = new UserResponse(id, "test@example.com", Role.USER, now, now);
+        User user = new User();
+        user.setId(id);
+        user.setEmail(request.email());
+        user.setRole(Role.USER);
 
-                when(userService.register(any(RegisterUserRequest.class)))
-                                .thenReturn(user);
+        UserResponse response = new UserResponse(id, "test@example.com", Role.USER, now, now);
 
-                when(userMapper.toResponse(user))
-                                .thenReturn(response);
+        when(userService.register(any(RegisterUserRequest.class)))
+                .thenReturn(user);
 
-                mockMvc.perform(post("/api/v1/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                {
-                                                    "email": "test@example.com",
-                                                    "password": "password123"
-                                                }
-                                                """))
-                                .andExpect(status().isCreated())
-                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                                .andExpect(jsonPath("$.id").value(id.toString()))
-                                .andExpect(jsonPath("$.email").value("test@example.com"))
-                                .andExpect(jsonPath("$.role").value("USER"))
-                                .andExpect(jsonPath("$.passwordHash").doesNotExist());
-        }
+        when(userMapper.toResponse(user))
+                .thenReturn(response);
 
-        @Test
-        void shouldRejectInvalidEmail() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email": "test@example.com",
+                            "password": "password123"
+                        }
+                        """))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.passwordHash").doesNotExist());
+    }
 
-                mockMvc.perform(post("/api/v1/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                {
-                                                    "email": "invalid-email",
-                                                    "password": "password123"
-                                                }
-                                                """))
-                                .andExpect(status().isBadRequest());
-        }
+    @Test
+    void shouldRejectInvalidEmail() throws Exception {
 
-        @Test
-        void shouldRejectShortPassword() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email": "invalid-email",
+                            "password": "password123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 
-                mockMvc.perform(post("/api/v1/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                {
-                                                    "email": "test@example.com",
-                                                    "password": "1234567"
-                                                }
-                                                """))
-                                .andExpect(status().isBadRequest());
-        }
+    @Test
+    void shouldRejectShortPassword() throws Exception {
 
-        @Test
-        void shouldReturnConflictWhenEmailIsAlreadyRegistered() throws Exception {
-                when(userService.register(any(RegisterUserRequest.class)))
-                                .thenThrow(new EmailAlreadyRegisteredException("Email already registered"));
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email": "test@example.com",
+                            "password": "1234567"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 
-                mockMvc.perform(post("/api/v1/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                {
-                                                    "email": "test@example.com",
-                                                    "password": "password123"
-                                                }
-                                                """))
-                                .andExpect(status().isConflict());
-        }
+    @Test
+    void shouldReturnConflictWhenEmailIsAlreadyRegistered() throws Exception {
+        when(userService.register(any(RegisterUserRequest.class)))
+                .thenThrow(new EmailAlreadyRegisteredException("Email already registered"));
 
-        @Test
-        void shouldLoginUser() throws Exception {
-                LoginRequest request = new LoginRequest(
-                                "test@example.com",
-                                "password123");
+        mockMvc.perform(post("/api/v1/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email": "test@example.com",
+                            "password": "password123"
+                        }
+                        """))
+                .andExpect(status().isConflict());
+    }
 
-                LoginResponse response = new LoginResponse("jwt-token");
+    @Test
+    void shouldLoginUser() throws Exception {
+        LoginRequest request = new LoginRequest(
+                "test@example.com",
+                "password123");
 
-                when(userService.login(request))
-                                .thenReturn(response);
+        LoginResponse response = new LoginResponse("jwt-token");
 
-                mockMvc.perform(post("/api/v1/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                    {
-                                                        "email": "test@example.com",
-                                                        "password": "password123"
-                                                    }
-                                                """))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.token").value("jwt-token"));
+        when(userService.login(request))
+                .thenReturn(response);
 
-                verify(userService).login(request);
-        }
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "email": "test@example.com",
+                                "password": "password123"
+                            }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("jwt-token"));
 
-        @Test
-        void shouldRejectInvalidCredentials() throws Exception {
-                LoginRequest request = new LoginRequest("test@example.com", "wrong-password");
+        verify(userService).login(request);
+    }
 
-                when(userService.login(request)).thenThrow(new InvalidCredentialsException("Invalid credentials"));
+    @Test
+    void shouldRejectInvalidCredentials() throws Exception {
+        LoginRequest request = new LoginRequest("test@example.com", "wrong-password");
 
-                mockMvc.perform(post("/api/v1/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                {
-                                                    "email": "test@example.com",
-                                                    "password": "wrong-password"
-                                                }
-                                                """))
-                                .andDo(print())
-                                .andExpect(status().isUnauthorized());
+        when(userService.login(request)).thenThrow(new InvalidCredentialsException("Invalid credentials"));
 
-        }
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email": "test@example.com",
+                            "password": "wrong-password"
+                        }
+                        """))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
 
-        @ParameterizedTest
-        @CsvSource({
-                        "'invalid-email', 'password123'",
-                        "'test@example.com', '123'"
-        })
-        void shouldRejectInvalidLoginRequest(String email, String password) throws Exception {
-                mockMvc.perform(post("/api/v1/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                                    {
-                                                        "email": "%s",
-                                                        "password": "%s"
-                                                    }
-                                                """.formatted(email, password)))
-                                .andExpect(status().isBadRequest());
+    }
 
-                verify(userService, never()).login(any(LoginRequest.class));
-        }
+    @ParameterizedTest
+    @CsvSource({
+            "'invalid-email', 'password123'",
+            "'test@example.com', '123'"
+    })
+    void shouldRejectInvalidLoginRequest(String email, String password) throws Exception {
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "email": "%s",
+                                "password": "%s"
+                            }
+                        """.formatted(email, password)))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).login(any(LoginRequest.class));
+    }
 }
