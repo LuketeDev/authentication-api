@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lukete.authentication_api.dto.LoginRequest;
+import com.lukete.authentication_api.dto.LoginResponse;
 import com.lukete.authentication_api.dto.RegisterUserRequest;
 import com.lukete.authentication_api.dto.UserResponse;
 import com.lukete.authentication_api.mapper.UserMapper;
@@ -30,4 +32,11 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
 }

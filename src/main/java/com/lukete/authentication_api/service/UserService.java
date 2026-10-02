@@ -9,7 +9,7 @@ import com.lukete.authentication_api.dto.LoginRequest;
 import com.lukete.authentication_api.dto.LoginResponse;
 import com.lukete.authentication_api.dto.RegisterUserRequest;
 import com.lukete.authentication_api.exception.EmailAlreadyRegisteredException;
-import com.lukete.authentication_api.exception.InvalidPasswordException;
+import com.lukete.authentication_api.exception.InvalidCredentialsException;
 import com.lukete.authentication_api.exception.UserNotFoundException;
 import com.lukete.authentication_api.repository.UserRepository;
 
@@ -40,7 +40,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(request.email()));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new InvalidPasswordException("Password does not match");
+            throw new InvalidCredentialsException("Password does not match");
         }
 
         String token = jwtService.generateToken(user);
