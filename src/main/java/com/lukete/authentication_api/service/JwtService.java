@@ -1,8 +1,8 @@
 package com.lukete.authentication_api.service;
 
-import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -45,6 +45,11 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public UUID extractUserId(String token) {
+        return UUID.fromString(
+                extractAllClaims(token).getSubject());
     }
 
     private SecretKey getSigningKey() {

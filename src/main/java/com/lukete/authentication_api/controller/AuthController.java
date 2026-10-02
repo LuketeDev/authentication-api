@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Users", description = "Operations for managing users")
+@Tag(name = "Authentication", description = "Operations for user authentication")
 @RequestMapping(path = "/api/v1/auth")
 @RestController
 @RequiredArgsConstructor
