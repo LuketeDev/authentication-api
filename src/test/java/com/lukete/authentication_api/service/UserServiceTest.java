@@ -133,7 +133,7 @@ class UserServiceTest {
         }
 
         @Test
-        void shouldThrowWhenUserDoesNotExist() {
+        void shouldThrowWhenUserDoesNotExistByEmail() {
                 LoginRequest request = new LoginRequest(
                                 "test@example.com",
                                 "password123");
@@ -149,6 +149,12 @@ class UserServiceTest {
 
                 verify(passwordEncoder, never()).matches(any(), any());
                 verify(jwtService, never()).generateToken(any());
+        }
+
+        @Test
+        void shouldThrowWhenUserDoesNotExistById() {
+                UUID userId = UUID.randomUUID();
+                assertThatThrownBy(() -> userService.findById(userId)).isInstanceOf(UserNotFoundException.class);
         }
 
         @Test

@@ -1,8 +1,11 @@
 package com.lukete.authentication_api.controller;
 
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +59,31 @@ public class UserControllerTest {
     }
 
     @Test
+    void shouldReturnNotFoundWhenAuthenticatedUserDoesNotExist() throws Exception {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail("ghost@example.com");
+        user.setPasswordHash("hashed-password");
+
+        String token = jwtService.generateToken(user);
+
+        mvc.perform(get("/api/v1/users/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("USER_NOT_FOUND"));
+    }
+
+    @Test
     void shouldRejectInvalidToken() throws Exception {
         mvc.perform(get("/api/v1/users/me")
                 .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldRejectRequestWithInvalidAuthorizationScheme() throws Exception {
+        mvc.perform(get("/api/v1/users/me")
+                .header("Authorization", "Basic some-token"))
                 .andExpect(status().isUnauthorized());
     }
 }
