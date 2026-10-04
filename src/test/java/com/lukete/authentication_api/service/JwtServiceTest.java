@@ -64,7 +64,7 @@ class JwtServiceTest {
         user.setRole(Role.USER);
 
         String token = jwtService.generateToken(user);
-        UUID extractedId = jwtService.extractUserId(token);
+        UUID extractedId = jwtService.extractUserId(jwtService.extractAllClaims(token));
         assertThat(userId).isEqualTo(extractedId);
     }
 }

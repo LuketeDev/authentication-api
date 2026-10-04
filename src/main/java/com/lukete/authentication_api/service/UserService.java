@@ -49,10 +49,10 @@ public class UserService {
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UserNotFoundException(request.email()));
+                .orElseThrow(() -> new InvalidCredentialsException(request.email()));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Password does not match");
+            throw new InvalidCredentialsException("Credentials does not match");
         }
 
         String token = jwtService.generateToken(user);

@@ -47,9 +47,13 @@ public class JwtService {
                 .getPayload();
     }
 
-    public UUID extractUserId(String token) {
+    public String extractUserRole(Claims claims) {
+        return claims.get("role").toString();
+    }
+
+    public UUID extractUserId(Claims claims) {
         return UUID.fromString(
-                extractAllClaims(token).getSubject());
+                claims.getSubject());
     }
 
     private SecretKey getSigningKey() {

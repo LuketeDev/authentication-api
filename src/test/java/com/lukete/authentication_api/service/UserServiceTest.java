@@ -145,7 +145,7 @@ class UserServiceTest {
                 when(userRepository.findByEmail(request.email()))
                                 .thenReturn(Optional.empty());
 
-                assertThatThrownBy(() -> userService.login(request)).isInstanceOf(UserNotFoundException.class);
+                assertThatThrownBy(() -> userService.login(request)).isInstanceOf(InvalidCredentialsException.class);
 
                 verify(passwordEncoder, never()).matches(any(), any());
                 verify(jwtService, never()).generateToken(any());
