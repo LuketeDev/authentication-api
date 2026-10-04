@@ -7,8 +7,10 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.lukete.authentication_api.TestcontainersConfiguration;
 import com.lukete.authentication_api.domain.Role;
 import com.lukete.authentication_api.domain.User;
 
@@ -16,6 +18,7 @@ import io.jsonwebtoken.Claims;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestcontainersConfiguration.class)
 class JwtServiceTest {
 
     @Autowired
