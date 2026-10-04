@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidPassword(InvalidCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiErrorResponse(
-                "INVALID_PASSWORD",
+                "INVALID_CREDENTIALS",
                 ex.getMessage(),
                 LocalDateTime.now(DEFAULT_ZONE)));
     }
