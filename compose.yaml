@@ -16,5 +16,19 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build: .
+    container_name: authentication-api
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/authentication
+      DB_USERNAME: authentication
+      DB_PASSWORD: authentication
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
