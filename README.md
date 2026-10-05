@@ -124,3 +124,13 @@ O projeto possui verificações automatizadas de qualidade e segurança através
 - GitHub Actions
 
 O pipeline de CI executa os testes, análise de cobertura, análise estática e build da aplicação.
+
+## Deploy
+
+A aplicação está publicada no Render:
+
+**API:**
+[https://authentication-api-09s5.onrender.com](https://authentication-api-09s5.onrender.com)
+
+**Swagger:**
+[https://authentication-api-09s5.onrender.com/swagger-ui.html](https://authentication-api-09s5.onrender.com/swagger-ui.html)
