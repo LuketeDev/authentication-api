@@ -15,8 +15,16 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
-          distribution: "temurin"
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Dependency-Check database
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/dependency-check-data
+          key: dependency-check-${{ runner.os }}-${{ hashFiles('build.gradle.kts') }}
+          restore-keys: |
+            dependency-check-${{ runner.os }}-
 
       - name: Run tests
         run: ./gradlew test
